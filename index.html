@@ -16,7 +16,7 @@
             font-family: 'Pretendard', 'Malgun Gothic', '맑은 고딕', sans-serif;
             background-color: #f4f7f9;
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px 10px; /* 모바일 대응 패딩 축소 */
             color: #334155;
         }
         .container {
@@ -27,18 +27,18 @@
         /* 세련된 카드 UI 스타일 */
         .input-card {
             background: #ffffff;
-            padding: 30px 40px;
+            padding: 20px; /* 모바일 대응 패딩 축소 */
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border: 1px solid #e2e8f0;
         }
         .card-title {
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: 700;
             color: #0f172a;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -46,8 +46,8 @@
         .card-title::before {
             content: '';
             display: inline-block;
-            width: 6px;
-            height: 24px;
+            width: 5px;
+            height: 20px;
             background-color: #4f46e5;
             border-radius: 4px;
         }
@@ -55,8 +55,8 @@
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 16px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
         .form-group {
             display: flex;
@@ -64,12 +64,12 @@
         }
         label {
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-size: 0.85em;
             color: #64748b;
         }
         input, select {
-            padding: 12px 14px;
+            padding: 10px 12px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
             font-size: 0.95em;
@@ -82,22 +82,28 @@
             outline: none;
             border-color: #4f46e5;
             background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
-        /* 메인 액션 버튼 (데이터 추가, 템플릿 생성) */
+        /* 메인 액션 버튼 */
         .form-actions {
-            margin-top: 25px;
-            margin-bottom: 25px;
+            margin-top: 20px;
+            margin-bottom: 20px;
             display: flex;
-            gap: 15px;
+            gap: 10px;
+            flex-direction: column; /* 모바일 대응 세로 배치 */
+        }
+        @media (min-width: 600px) {
+            .form-actions {
+                flex-direction: row; /* PC에서는 가로 배치 */
+            }
         }
         .form-actions button {
             flex: 1;
-            padding: 16px;
+            padding: 14px;
             border: none;
             border-radius: 10px;
-            font-size: 1.1em;
+            font-size: 1em;
             cursor: pointer;
             font-weight: 700;
             transition: all 0.2s ease;
@@ -105,89 +111,73 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
         .btn-add {
-            background-color: #4f46e5; /* Indigo */
+            background-color: #4f46e5;
             color: white;
             box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
         }
-        .btn-add:hover { 
-            background-color: #4338ca; 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3); 
-        }
+        .btn-add:hover { background-color: #4338ca; transform: translateY(-2px); }
         
         .btn-template {
-            background-color: #f59e0b; /* Amber */
+            background-color: #f59e0b;
             color: white;
             box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
         }
-        .btn-template:hover {
-            background-color: #d97706;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
-        }
+        .btn-template:hover { background-color: #d97706; transform: translateY(-2px); }
 
-        /* 유틸리티 버튼 영역 (저장/불러오기/초기화) */
+        /* 유틸리티 버튼 영역 */
         .utility-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 20px;
+            padding-top: 15px;
             border-top: 1px dashed #cbd5e1;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
         .utility-actions-left, .utility-actions-right {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
         .utility-actions button {
-            padding: 10px 18px;
+            padding: 8px 14px;
             border: none;
             border-radius: 8px;
-            font-size: 0.9em;
+            font-size: 0.85em;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s ease;
             font-family: inherit;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
-        
-        .btn-save {
-            background-color: #0d9488; /* Teal */
-            color: white;
-            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.15);
-        }
-        .btn-save:hover { background-color: #0f766e; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(13, 148, 136, 0.25); }
-        
-        .btn-load {
-            background-color: #0284c7; /* Sky Blue */
-            color: white;
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.15);
-        }
-        .btn-load:hover { background-color: #0369a1; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(2, 132, 199, 0.25); }
-        
-        .btn-reset {
-            background-color: #f1f5f9; /* Slate Light */
-            color: #475569;
-        }
+        .btn-save { background-color: #0d9488; color: white; }
+        .btn-save:hover { background-color: #0f766e; }
+        .btn-load { background-color: #0284c7; color: white; }
+        .btn-load:hover { background-color: #0369a1; }
+        .btn-reset { background-color: #f1f5f9; color: #475569; }
         .btn-reset:hover { background-color: #e2e8f0; color: #1e293b; }
 
         /* 출력 버튼 그룹 */
         .export-actions {
             display: flex;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 10px;
+            margin-top: 20px;
+            flex-direction: column; /* 모바일 대응 세로 배치 */
+        }
+        @media (min-width: 600px) {
+            .export-actions {
+                flex-direction: row; /* PC에서는 가로 배치 */
+            }
         }
         .export-actions button {
             flex: 1;
-            font-size: 1.1em;
-            padding: 18px;
+            font-size: 1em;
+            padding: 16px;
             border-radius: 12px;
             border: none;
             cursor: pointer;
@@ -204,43 +194,36 @@
             color: white;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
         }
-        .btn-export-img:hover {
-            background-color: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-        }
+        .btn-export-img:hover { background-color: #059669; transform: translateY(-2px); }
 
         .btn-export-pdf {
-            background-color: #ef4444; /* Red for PDF/Print */
+            background-color: #ef4444;
             color: white;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
-        .btn-export-pdf:hover {
-            background-color: #dc2626;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
-        }
+        .btn-export-pdf:hover { background-color: #dc2626; transform: translateY(-2px); }
         
-        /* 보고서 영역 스타일 */
-        .report-container {
+        /* [핵심] 보고서 영역 스타일 - 반응형 적용 */
+        .report-wrapper {
+            /* 캡처를 위한 부모 래퍼. 가로 스크롤 허용 */
+            width: 100%;
+            overflow-x: auto;
             background: #ffffff;
-            /* 캡처 시 내부 패딩이 포함되도록 박스사이징 설정 */
-            box-sizing: border-box; 
-            padding: 40px;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             border: 1px solid #e2e8f0;
-            
-            /* [중요] 프린트/PDF 용 A4 비율 (가로형) 기준 강제 크기 설정 
-               A4 비율: 1 : 1.414 (가로형: 폭 297mm, 높이 210mm)
-               웹상에서 보기 좋게 폭을 1122px (297mm * 96dpi / 25.4) 정도로 맞춥니다.
-            */
-            width: 1122px; 
-            /* 화면이 좁아도 A4 비율을 유지하며 축소되어 보이도록 설정 */
-            max-width: 100%;
-            overflow-x: auto; /* 내용이 넘치면 자체 스크롤 */
             margin: 0 auto;
         }
+
+        .report-container {
+            /* 캡처 시 실제 그려질 영역. 모바일에서도 PC와 동일한 강제 A4 픽셀 너비 유지 */
+            box-sizing: border-box; 
+            padding: 40px;
+            width: 1122px; /* A4 가로 픽셀 고정 (캡처 시 변형 방지) */
+            min-width: 1122px; 
+            background: #ffffff; /* 캡처 배경색 보장 */
+        }
+
         .report-header {
             margin-bottom: 30px;
             padding-bottom: 20px;
@@ -249,9 +232,7 @@
             flex-direction: column;
             gap: 12px; 
         }
-        .report-header-left {
-            width: 100%;
-        }
+        .report-header-left { width: 100%; }
         .report-header-left h2 {
             margin: 0;
             color: #0f172a;
@@ -272,23 +253,20 @@
             font-weight: 500;
         }
         
+        /* 테이블 래퍼 스크롤 방지 (상위 래퍼에서 스크롤 처리) */
         .table-responsive {
             width: 100%;
-            /* 캡처할 때 표가 짤리지 않도록 */
             overflow: visible; 
         }
 
-        /* 테이블 디자인 */
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.95em;
-            /* 표가 부모 컨테이너 너비를 넘지 않도록 (테이블 레이아웃 고정은 아님) */
             max-width: 100%;
         }
         th, td {
             border: 1px solid #e2e8f0;
-            /* 패딩을 약간 줄여 A4 가로 안에 여러 교시가 들어가도록 조정 */
             padding: 10px 6px; 
             text-align: center;
             vertical-align: middle;
@@ -301,36 +279,20 @@
             white-space: pre-wrap; 
             line-height: 1.4;
         }
-        /* 그룹을 구분하는 세로선 */
         th.border-left-strong, td.border-left-strong {
             border-left: 2px solid #cbd5e1;
         }
-        /* 데이터 행 호버 효과 */
-        tbody tr {
-            transition: background-color 0.15s ease;
-        }
-        tbody tr:hover {
-            background-color: #f8fafc;
-        }
-        .rate-cell {
-            font-weight: 700;
-            color: #4f46e5;
-        }
-        .absent-cell {
-            color: #94a3b8;
-        }
-        /* 합계 행 스타일 */
+        tbody tr { transition: background-color 0.15s ease; }
+        tbody tr:hover { background-color: #f8fafc; }
+        .rate-cell { font-weight: 700; color: #4f46e5; }
+        .absent-cell { color: #94a3b8; }
         .total-row {
             background-color: #f1f5f9 !important;
             font-weight: 700;
             color: #0f172a;
         }
-        .total-row td {
-            border-top: 2px solid #cbd5e1;
-        }
-        .total-row .rate-cell {
-            color: #ea580c;
-        }
+        .total-row td { border-top: 2px solid #cbd5e1; }
+        .total-row .rate-cell { color: #ea580c; }
         
         .placeholder-text {
             text-align: center;
@@ -405,13 +367,11 @@
             </div>
         </div>
         
-        <!-- 메인 액션 버튼 -->
         <div class="form-actions">
             <button class="btn-add" onclick="calculateAndAdd(false)">➕ 데이터 추가 및 계산</button>
             <button class="btn-template" onclick="calculateAndAdd(true)">📄 현장 수기용 템플릿 생성</button>
         </div>
         
-        <!-- 보조 유틸리티 버튼 -->
         <div class="utility-actions">
             <div class="utility-actions-left">
                 <button class="btn-save" onclick="saveDataToFile()">💾 데이터 백업 저장</button>
@@ -425,30 +385,33 @@
         <input type="file" id="file-input" accept=".json" style="display: none;" onchange="loadDataFromFile(event)">
     </div>
 
-    <!-- 캡처 대상 컨테이너 (고정된 A4 가로 너비) -->
-    <div id="report-area" class="report-container">
-        <div class="report-header">
-            <div class="report-header-left">
-                <h2 id="report-title">기관명 [시험명]</h2>
+    <!-- 캡처 대상 컨테이너 래퍼 (스크롤 영역) -->
+    <div class="report-wrapper">
+        <!-- 실제 캡처될 고정 크기 (1122px) 컨테이너 -->
+        <div id="report-area" class="report-container">
+            <div class="report-header">
+                <div class="report-header-left">
+                    <h2 id="report-title">기관명 [시험명]</h2>
+                </div>
+                <div class="report-header-right">
+                    <span class="subtitle" id="report-subtitle">데이터를 입력하면 날짜가 반영됩니다.</span>
+                </div>
             </div>
-            <div class="report-header-right">
-                <span class="subtitle" id="report-subtitle">데이터를 입력하면 날짜가 반영됩니다.</span>
+            
+            <div class="table-responsive" id="table-wrapper">
+                <table>
+                    <thead id="tableHead">
+                    </thead>
+                    <tbody id="resultBody">
+                    </tbody>
+                </table>
             </div>
-        </div>
-        
-        <div class="table-responsive" id="table-wrapper">
-            <table>
-                <thead id="tableHead">
-                </thead>
-                <tbody id="resultBody">
-                </tbody>
-            </table>
         </div>
     </div>
 
     <div class="export-actions">
-        <button class="btn-export-img" onclick="saveAsImage()">📱 카카오톡 보고용 이미지(PNG) 다운로드</button>
-        <button class="btn-export-pdf" onclick="saveAsPDF()">🖨️ 인쇄용 PDF 다운로드 (A4사이즈)</button>
+        <button class="btn-export-img" onclick="saveAsImage()">📱 이미지(PNG) 다운로드</button>
+        <button class="btn-export-pdf" onclick="saveAsPDF()">🖨️ 인쇄용 PDF 다운로드 (A4)</button>
     </div>
 </div>
 
@@ -456,7 +419,6 @@
     let reportData = [];
     let dataIdCounter = 0;
 
-    // 오늘 날짜를 YYYY-MM-DD 형식으로 반환하는 함수
     function getTodayYYYYMMDD() {
         const now = new Date();
         const year = now.getFullYear();
@@ -466,7 +428,6 @@
     }
 
     window.onload = function() {
-        // 페이지 로드 시 기본값을 오늘 날짜로 세팅
         document.getElementById('examDate').value = getTodayYYYYMMDD();
         renderTable();
     };
@@ -506,7 +467,7 @@
         if (!isTemplate) {
             attendees = parseInt(attendeesInput) || 0;
             if (attendees > total) {
-                alert("입력 오류: 응시인원이 총 인원보다 많을 수 없습니다.");
+                alert("입력 오류: 응시인원이 총 인원보다 많을 수 정해졌습니다.");
                 return;
             }
             absentees = total - attendees;
@@ -548,7 +509,6 @@
     function updateReportTitleAndDate(agency, exam) {
         document.getElementById('report-title').innerText = `${agency} [${exam}]`;
         
-        // 입력된 날짜 값을 가져와 포맷팅 (타임존 오류 방지를 위해 분할 처리)
         const dateInput = document.getElementById('examDate').value;
         if (dateInput) {
             const [year, month, day] = dateInput.split('-');
@@ -826,28 +786,28 @@
         reader.readAsText(file);
     }
 
-    // [핵심 변경] 클론을 만들지 않고 현재 보이는 영역을 1:1로 캡처
-    // 보고서 컨테이너의 width를 A4 비율 픽셀 크기로 고정했으므로, 
-    // 그냥 캡처해도 A4 비율로 깔끔하게 떨어집니다.
+    // [핵심 해결 로직] 오프스크린 클론 캡처 방식을 폐기하고, A4 고정 픽셀(1122px) 컨테이너 자체를 1:1 캡처합니다.
     function captureReportElement(callback) {
         const reportArea = document.getElementById('report-area');
         const hiddenElements = reportArea.querySelectorAll('.hide-on-capture');
         
-        // 캡처 전 관리 열 일시 숨김
+        // 캡처 전 관리(삭제) 열 일시 숨김
         hiddenElements.forEach(el => el.style.display = 'none');
 
-        // scale 2로 설정하여 인쇄/이미지 품질 향상 (레티나 디스플레이 대응)
+        // scale을 2로 주어 고화질 유지 (모바일에서도 렌더링 영역 크기 1122px 기준)
         html2canvas(reportArea, {
             backgroundColor: '#ffffff',
             scale: 2, 
-            logging: false
+            logging: false,
+            // 추가 옵션: iframe 등에서 폰트 로드 등 깨짐 방지
+            useCORS: true 
         }).then(canvas => {
-            // 캡처 후 관리 열 다시 표시
+            // 캡처 완료 후 관리 열 복원
             hiddenElements.forEach(el => el.style.display = '');
             callback(canvas);
         }).catch(err => {
             hiddenElements.forEach(el => el.style.display = '');
-            alert("처리 중 오류가 발생했습니다.");
+            alert("이미지 처리 중 오류가 발생했습니다.");
             console.error(err);
         });
     }
@@ -869,7 +829,6 @@
         });
     }
 
-    // PDF 다운로드 기능 (jsPDF 활용)
     function saveAsPDF() {
          if (reportData.length === 0) {
             alert("출력할 데이터가 없습니다. 먼저 데이터를 추가해주세요.");
@@ -881,23 +840,14 @@
 
         captureReportElement(function(canvas) {
             const imgData = canvas.toDataURL('image/png');
-            
-            // jsPDF 인스턴스 생성 (l: 가로(landscape), mm 단위, a4 포맷)
-            // window.jspdf 객체 참조
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('l', 'mm', 'a4');
-            
-            const pdfWidth = pdf.internal.pageSize.getWidth(); // A4 가로 너비 (297mm)
-            const pdfHeight = pdf.internal.pageSize.getHeight(); // A4 가로 높이 (210mm)
-            
-            // 캔버스 이미지의 비율에 맞춰 PDF 내 이미지 높이 계산
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
             const imgProps = pdf.getImageProperties(imgData);
             const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
             
-            // 이미지를 PDF에 추가
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-            
-            // PDF 파일 저장
             pdf.save(`${agency}_${exam}_응시현황.pdf`);
         });
     }
