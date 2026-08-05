@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험 응시율 계산 및 보고서 생성기</title>
+    <!-- 세련된 폰트 (Pretendard) 적용 -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <!-- html2canvas 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF 라이브러리 추가 (PDF 변환을 위해) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', '맑은 고딕', sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 40px 20px;
+            color: #334155;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 세련된 카드 UI 스타일 */
+        .input-card {
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 24px;
+            background-color: #4f46e5;
+            border-radius: 4px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+            color: #64748b;
+        }
+        input, select {
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        /* 메인 액션 버튼 (데이터 추가, 템플릿 생성) */
+        .form-actions {
+            margin-top: 25px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+        }
+        .form-actions button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-add {
+            background-color: #4f46e5; /* Indigo */
+            color: white;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+        .btn-add:hover { 
+            background-color: #4338ca; 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3); 
+        }
+        
+        .btn-template {
+            background-color: #f59e0b; /* Amber */
+            color: white;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+        }
+        .btn-template:hover {
+            background-color: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        /* 유틸리티 버튼 영역 (저장/불러오기/초기화) */
+        .utility-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px dashed #cbd5e1;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .utility-actions-left, .utility-actions-right {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .utility-actions button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-save {
+            background-color: #0d9488; /* Teal */
+            color: white;
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.15);
+        }
+        .btn-save:hover { background-color: #0f766e; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(13, 148, 136, 0.25); }
+        
+        .btn-load {
+            background-color: #0284c7; /* Sky Blue */
+            color: white;
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.15);
+        }
+        .btn-load:hover { background-color: #0369a1; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(2, 132, 199, 0.25); }
+        
+        .btn-reset {
+            background-color: #f1f5f9; /* Slate Light */
+            color: #475569;
+        }
+        .btn-reset:hover { background-color: #e2e8f0; color: #1e293b; }
+
+        /* 출력 버튼 그룹 */
+        .export-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .export-actions button {
+            flex: 1;
+            font-size: 1.1em;
+            padding: 18px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        
+        .btn-export-img {
+            background-color: #10b981;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        .btn-export-img:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-export-pdf {
+            background-color: #ef4444; /* Red for PDF/Print */
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .btn-export-pdf:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* 보고서 영역 스타일 */
+        .report-container {
+            background: #ffffff;
+            /* 캡처 시 내부 패딩이 포함되도록 박스사이징 설정 */
+            box-sizing: border-box; 
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            
+            /* [중요] 프린트/PDF 용 A4 비율 (가로형) 기준 강제 크기 설정 
+               A4 비율: 1 : 1.414 (가로형: 폭 297mm, 높이 210mm)
+               웹상에서 보기 좋게 폭을 1122px (297mm * 96dpi / 25.4) 정도로 맞춥니다.
+            */
+            width: 1122px; 
+            /* 화면이 좁아도 A4 비율을 유지하며 축소되어 보이도록 설정 */
+            max-width: 100%;
+            overflow-x: auto; /* 내용이 넘치면 자체 스크롤 */
+            margin: 0 auto;
+        }
+        .report-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 12px; 
+        }
+        .report-header-left {
+            width: 100%;
+        }
+        .report-header-left h2 {
+            margin: 0;
+            color: #0f172a;
+            font-size: 1.8em;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .report-header-right {
+            width: 100%;
+            text-align: right;
+        }
+        .report-header-right .subtitle {
+            color: #64748b;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+        
+        .table-responsive {
+            width: 100%;
+            /* 캡처할 때 표가 짤리지 않도록 */
+            overflow: visible; 
+        }
+
+        /* 테이블 디자인 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+            /* 표가 부모 컨테이너 너비를 넘지 않도록 (테이블 레이아웃 고정은 아님) */
+            max-width: 100%;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            /* 패딩을 약간 줄여 A4 가로 안에 여러 교시가 들어가도록 조정 */
+            padding: 10px 6px; 
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap; 
+        }
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            white-space: pre-wrap; 
+            line-height: 1.4;
+        }
+        /* 그룹을 구분하는 세로선 */
+        th.border-left-strong, td.border-left-strong {
+            border-left: 2px solid #cbd5e1;
+        }
+        /* 데이터 행 호버 효과 */
+        tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        .rate-cell {
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .absent-cell {
+            color: #94a3b8;
+        }
+        /* 합계 행 스타일 */
+        .total-row {
+            background-color: #f1f5f9 !important;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .total-row td {
+            border-top: 2px solid #cbd5e1;
+        }
+        .total-row .rate-cell {
+            color: #ea580c;
+        }
+        
+        .placeholder-text {
+            text-align: center;
+            color: #94a3b8;
+            padding: 60px 0;
+            font-weight: 500;
+            white-space: normal;
+        }
+
+        .btn-delete {
+            padding: 6px 10px;
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-delete:hover {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="input-card">
+        <div class="card-title">정보 입력</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="agency">기관명</label>
+                <input type="text" id="agency" placeholder="예: OO기관" value="">
+            </div>
+            <div class="form-group">
+                <label for="exam">시험명</label>
+                <input type="text" id="exam" placeholder="예: 필기전형" value="">
+            </div>
+            <div class="form-group">
+                <label for="examDate">전형(시험)일</label>
+                <input type="date" id="examDate">
+            </div>
+            <div class="form-group">
+                <label for="room">고사실 (시험실)</label>
+                <input type="text" id="room" placeholder="예: 1고사실">
+            </div>
+            <div class="form-group">
+                <label for="field">지원분야</label>
+                <input type="text" id="field" placeholder="예: 일반직">
+            </div>
+            <div class="form-group">
+                <label for="period">교시</label>
+                <select id="period">
+                    <option value="1교시">1교시</option>
+                    <option value="2교시">2교시</option>
+                    <option value="3교시">3교시</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="subject">과목</label>
+                <input type="text" id="subject" placeholder="예: 인성검사">
+            </div>
+            <div class="form-group">
+                <label for="total">총 인원 (배정)</label>
+                <input type="number" id="total" min="0" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label for="attendees">응시인원</label>
+                <input type="number" id="attendees" min="0" placeholder="0">
+            </div>
+        </div>
+        
+        <!-- 메인 액션 버튼 -->
+        <div class="form-actions">
+            <button class="btn-add" onclick="calculateAndAdd(false)">➕ 데이터 추가 및 계산</button>
+            <button class="btn-template" onclick="calculateAndAdd(true)">📄 현장 수기용 템플릿 생성</button>
+        </div>
+        
+        <!-- 보조 유틸리티 버튼 -->
+        <div class="utility-actions">
+            <div class="utility-actions-left">
+                <button class="btn-save" onclick="saveDataToFile()">💾 데이터 백업 저장</button>
+                <button class="btn-load" onclick="triggerLoadFile()">📂 파일 불러오기</button>
+            </div>
+            <div class="utility-actions-right">
+                <button class="btn-reset" onclick="resetData()">🗑️ 전체 초기화</button>
+            </div>
+        </div>
+        
+        <input type="file" id="file-input" accept=".json" style="display: none;" onchange="loadDataFromFile(event)">
+    </div>
+
+    <!-- 캡처 대상 컨테이너 (고정된 A4 가로 너비) -->
+    <div id="report-area" class="report-container">
+        <div class="report-header">
+            <div class="report-header-left">
+                <h2 id="report-title">기관명 [시험명]</h2>
+            </div>
+            <div class="report-header-right">
+                <span class="subtitle" id="report-subtitle">데이터를 입력하면 날짜가 반영됩니다.</span>
+            </div>
+        </div>
+        
+        <div class="table-responsive" id="table-wrapper">
+            <table>
+                <thead id="tableHead">
+                </thead>
+                <tbody id="resultBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="export-actions">
+        <button class="btn-export-img" onclick="saveAsImage()">📱 카카오톡 보고용 이미지(PNG) 다운로드</button>
+        <button class="btn-export-pdf" onclick="saveAsPDF()">🖨️ 인쇄용 PDF 다운로드 (A4사이즈)</button>
+    </div>
+</div>
+
+<script>
+    let reportData = [];
+    let dataIdCounter = 0;
+
+    // 오늘 날짜를 YYYY-MM-DD 형식으로 반환하는 함수
+    function getTodayYYYYMMDD() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    window.onload = function() {
+        // 페이지 로드 시 기본값을 오늘 날짜로 세팅
+        document.getElementById('examDate').value = getTodayYYYYMMDD();
+        renderTable();
+    };
+
+    function calculateAndAdd(isTemplate = false) {
+        const agency = document.getElementById('agency').value.trim();
+        const exam = document.getElementById('exam').value.trim();
+        const room = document.getElementById('room').value.trim() || '-';
+        const field = document.getElementById('field').value.trim() || '-';
+        const period = document.getElementById('period').value; 
+        const subject = document.getElementById('subject').value.trim() || '-';
+        
+        const totalInput = document.getElementById('total').value;
+        const attendeesInput = document.getElementById('attendees').value;
+
+        if (!agency || !exam) {
+            alert("기관명과 시험명을 입력해주세요.");
+            return;
+        }
+        
+        if (isTemplate) {
+            if (totalInput === '') {
+                alert("템플릿 생성을 위해 총 인원을 입력해주세요.");
+                return;
+            }
+        } else {
+            if (totalInput === '' || attendeesInput === '') {
+                alert("총 인원과 응시인원을 모두 입력해주세요.");
+                return;
+            }
+        }
+
+        const total = parseInt(totalInput) || 0;
+        let attendees = null;
+        let absentees = null;
+
+        if (!isTemplate) {
+            attendees = parseInt(attendeesInput) || 0;
+            if (attendees > total) {
+                alert("입력 오류: 응시인원이 총 인원보다 많을 수 없습니다.");
+                return;
+            }
+            absentees = total - attendees;
+        }
+
+        updateReportTitleAndDate(agency, exam);
+
+        let existingItem = reportData.find(item => item.room === room && item.field === field);
+
+        if (existingItem) {
+            existingItem.total = total; 
+            existingItem.periods[period] = {
+                subject: subject,
+                attendees: attendees,
+                absentees: absentees,
+                isTemplate: isTemplate
+            };
+        } else {
+            let newItem = {
+                id: dataIdCounter++, 
+                room: room,
+                field: field,
+                total: total,
+                periods: {}
+            };
+            newItem.periods[period] = {
+                subject: subject,
+                attendees: attendees,
+                absentees: absentees,
+                isTemplate: isTemplate
+            };
+            reportData.push(newItem);
+        }
+
+        renderTable();
+        document.getElementById('attendees').select();
+    }
+
+    function updateReportTitleAndDate(agency, exam) {
+        document.getElementById('report-title').innerText = `${agency} [${exam}]`;
+        
+        // 입력된 날짜 값을 가져와 포맷팅 (타임존 오류 방지를 위해 분할 처리)
+        const dateInput = document.getElementById('examDate').value;
+        if (dateInput) {
+            const [year, month, day] = dateInput.split('-');
+            const selectedDate = new Date(year, month - 1, day);
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayOfWeek = days[selectedDate.getDay()];
+            const dateStr = `${year}.${month}.${day}(${dayOfWeek})`;
+            document.getElementById('report-subtitle').innerText = dateStr;
+        } else {
+            document.getElementById('report-subtitle').innerText = "데이터를 입력하면 날짜가 반영됩니다.";
+        }
+    }
+
+    function deleteRow(id) {
+        if (confirm("해당 고사실의 데이터를 전체 삭제하시겠습니까?")) {
+            reportData = reportData.filter(item => item.id !== id);
+            renderTable();
+            
+            if (reportData.length === 0) {
+                 document.getElementById('report-title').innerText = "기관명 [시험명]";
+                 document.getElementById('report-subtitle').innerText = "데이터를 입력하면 날짜가 반영됩니다.";
+            }
+        }
+    }
+
+    function renderTable() {
+        const thead = document.getElementById('tableHead');
+        const tbody = document.getElementById('resultBody');
+        
+        let activePeriods = [];
+        if (reportData.length === 0) {
+            activePeriods = ['1교시'];
+        } else {
+            ['1교시', '2교시', '3교시'].forEach(p => {
+                if (reportData.some(item => item.periods[p])) {
+                    activePeriods.push(p);
+                }
+            });
+        }
+
+        let theadHtml = `
+            <tr>
+                <th rowspan="2">고사실</th>
+                <th rowspan="2">지원분야</th>
+                <th rowspan="2" class="border-left-strong">총 인원</th>
+        `;
+        
+        activePeriods.forEach(p => {
+            let subj = '';
+            reportData.forEach(item => {
+                if (item.periods[p] && item.periods[p].subject !== '-') {
+                    subj = item.periods[p].subject;
+                }
+            });
+            let thText = subj ? `${p}\n(${subj})` : p;
+            theadHtml += `<th colspan="3" class="border-left-strong">${thText}</th>`;
+        });
+        
+        theadHtml += `
+                <th rowspan="2" class="action-col hide-on-capture border-left-strong">관리</th>
+            </tr>
+            <tr>
+        `;
+        
+        activePeriods.forEach(p => {
+            theadHtml += `
+                <th class="border-left-strong">응시</th>
+                <th>결시</th>
+                <th>응시율</th>
+            `;
+        });
+        theadHtml += `</tr>`;
+        thead.innerHTML = theadHtml;
+
+        tbody.innerHTML = '';
+        if (reportData.length === 0) {
+            const colCount = 4 + (activePeriods.length * 3); 
+            tbody.innerHTML = `<tr><td colspan="${colCount}" class="placeholder-text">상단에 데이터를 입력하고 [데이터 추가 및 계산] 또는 [현장 수기용 템플릿 생성] 버튼을 눌러주세요.<br>(같은 고사실의 데이터를 연속 추가하면 한 줄에 합쳐집니다.)</td></tr>`;
+            return;
+        }
+
+        let sumTotal = 0;
+        let sum = {};
+        activePeriods.forEach(p => sum[p] = { attendees: 0, absentees: 0, count: 0, templateCount: 0 });
+
+        reportData.forEach(item => {
+            sumTotal += item.total;
+            
+            const row = document.createElement('tr');
+            let html = `
+                <td>${item.room}</td>
+                <td>${item.field}</td>
+                <td class="border-left-strong"><strong>${item.total}</strong></td>
+            `;
+
+            activePeriods.forEach(p => {
+                if (item.periods[p]) {
+                    if (item.periods[p].isTemplate) {
+                        html += `
+                            <td class="border-left-strong"></td>
+                            <td class="absent-cell"></td>
+                            <td class="rate-cell"></td>
+                        `;
+                        sum[p].templateCount++;
+                    } else {
+                        const att = item.periods[p].attendees;
+                        const abs = item.periods[p].absentees;
+                        const tot = att + abs;
+                        const rate = tot > 0 ? (att / tot) * 100 : 0;
+                        const rateFmt = rate % 1 === 0 ? rate.toFixed(0) : rate.toFixed(1);
+
+                        sum[p].attendees += att;
+                        sum[p].absentees += abs;
+                        sum[p].count++;
+
+                        html += `
+                            <td class="border-left-strong">${att}</td>
+                            <td class="absent-cell">${abs}</td>
+                            <td class="rate-cell">${rateFmt}%</td>
+                        `;
+                    }
+                } else {
+                    html += `
+                        <td class="border-left-strong">-</td>
+                        <td class="absent-cell">-</td>
+                        <td class="rate-cell">-</td>
+                    `;
+                }
+            });
+
+            html += `
+                <td class="action-col hide-on-capture border-left-strong">
+                    <button class="btn-delete" onclick="deleteRow(${item.id})">삭제</button>
+                </td>
+            `;
+            row.innerHTML = html;
+            tbody.appendChild(row);
+        });
+
+        const totalRow = document.createElement('tr');
+        totalRow.className = 'total-row';
+        let totalHtml = `
+            <td colspan="2">합계 (전체)</td>
+            <td class="border-left-strong">${sumTotal}</td>
+        `;
+
+        activePeriods.forEach(p => {
+            if (sum[p].count > 0 || sum[p].templateCount > 0) {
+                if (sum[p].count === 0 || sum[p].templateCount > 0) {
+                     totalHtml += `
+                        <td class="border-left-strong"></td>
+                        <td class="absent-cell"></td>
+                        <td class="rate-cell"></td>
+                    `;
+                } else {
+                    const att = sum[p].attendees;
+                    const abs = sum[p].absentees;
+                    const tot = att + abs;
+                    const rate = tot > 0 ? (att / tot) * 100 : 0;
+                    const rateFmt = rate % 1 === 0 ? rate.toFixed(0) : rate.toFixed(1);
+
+                    totalHtml += `
+                        <td class="border-left-strong">${att}</td>
+                        <td class="absent-cell">${abs}</td>
+                        <td class="rate-cell">${rateFmt}%</td>
+                    `;
+                }
+            } else {
+                totalHtml += `
+                    <td class="border-left-strong">-</td>
+                    <td class="absent-cell">-</td>
+                    <td class="rate-cell">-</td>
+                `;
+            }
+        });
+
+        totalHtml += `<td class="action-col hide-on-capture border-left-strong"></td>`;
+        totalRow.innerHTML = totalHtml;
+        tbody.appendChild(totalRow);
+    }
+
+    function resetData() {
+        if (confirm("입력된 모든 데이터가 삭제됩니다. 초기화하시겠습니까?")) {
+            reportData = [];
+            
+            document.getElementById('report-title').innerText = "기관명 [시험명]";
+            document.getElementById('report-subtitle').innerText = "데이터를 입력하면 날짜가 반영됩니다.";
+            
+            document.getElementById('agency').value = '';
+            document.getElementById('exam').value = '';
+            document.getElementById('examDate').value = getTodayYYYYMMDD();
+            document.getElementById('room').value = '';
+            document.getElementById('field').value = '';
+            document.getElementById('period').value = '1교시';
+            document.getElementById('subject').value = '';
+            document.getElementById('total').value = '';
+            document.getElementById('attendees').value = '';
+            
+            renderTable();
+        }
+    }
+    
+    function saveDataToFile() {
+        if (reportData.length === 0) {
+            alert("저장할 데이터가 없습니다. 먼저 데이터를 추가해주세요.");
+            return;
+        }
+
+        const agency = document.getElementById('agency').value.trim() || '기관명미상';
+        const exam = document.getElementById('exam').value.trim() || '시험명미상';
+
+        const saveData = {
+            agency: document.getElementById('agency').value,
+            exam: document.getElementById('exam').value,
+            examDate: document.getElementById('examDate').value,
+            room: document.getElementById('room').value,
+            field: document.getElementById('field').value,
+            subject: document.getElementById('subject').value,
+            data: reportData,
+            dataIdCounter: dataIdCounter
+        };
+
+        const dataStr = JSON.stringify(saveData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${agency}_${exam}_응시데이터.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+    }
+
+    function triggerLoadFile() {
+        document.getElementById('file-input').click();
+    }
+
+    function loadDataFromFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const loadedData = JSON.parse(e.target.result);
+                
+                if (!loadedData.data || !Array.isArray(loadedData.data)) {
+                    throw new Error("올바른 응시율 데이터 파일(.json)이 아닙니다.");
+                }
+                
+                document.getElementById('agency').value = loadedData.agency || '';
+                document.getElementById('exam').value = loadedData.exam || '';
+                document.getElementById('examDate').value = loadedData.examDate || getTodayYYYYMMDD();
+                document.getElementById('room').value = loadedData.room || '';
+                document.getElementById('field').value = loadedData.field || '';
+                document.getElementById('subject').value = loadedData.subject || '';
+                
+                reportData = loadedData.data;
+                dataIdCounter = loadedData.dataIdCounter || reportData.length;
+                
+                const agencyName = loadedData.agency.trim() || '기관명';
+                const examName = loadedData.exam.trim() || '시험명';
+                updateReportTitleAndDate(agencyName, examName);
+                renderTable();
+                
+                alert("데이터를 성공적으로 불러왔습니다.");
+            } catch (error) {
+                alert("파일을 불러오는 중 오류가 발생했습니다.\n" + error.message);
+            }
+            
+            event.target.value = '';
+        };
+        
+        reader.readAsText(file);
+    }
+
+    // [핵심 변경] 클론을 만들지 않고 현재 보이는 영역을 1:1로 캡처
+    // 보고서 컨테이너의 width를 A4 비율 픽셀 크기로 고정했으므로, 
+    // 그냥 캡처해도 A4 비율로 깔끔하게 떨어집니다.
+    function captureReportElement(callback) {
+        const reportArea = document.getElementById('report-area');
+        const hiddenElements = reportArea.querySelectorAll('.hide-on-capture');
+        
+        // 캡처 전 관리 열 일시 숨김
+        hiddenElements.forEach(el => el.style.display = 'none');
+
+        // scale 2로 설정하여 인쇄/이미지 품질 향상 (레티나 디스플레이 대응)
+        html2canvas(reportArea, {
+            backgroundColor: '#ffffff',
+            scale: 2, 
+            logging: false
+        }).then(canvas => {
+            // 캡처 후 관리 열 다시 표시
+            hiddenElements.forEach(el => el.style.display = '');
+            callback(canvas);
+        }).catch(err => {
+            hiddenElements.forEach(el => el.style.display = '');
+            alert("처리 중 오류가 발생했습니다.");
+            console.error(err);
+        });
+    }
+
+    function saveAsImage() {
+        if (reportData.length === 0) {
+            alert("출력할 데이터가 없습니다. 먼저 데이터를 추가해주세요.");
+            return;
+        }
+
+        const agency = document.getElementById('agency').value.trim() || '기관';
+        const exam = document.getElementById('exam').value.trim() || '시험';
+
+        captureReportElement(function(canvas) {
+            const link = document.createElement('a');
+            link.download = `${agency}_${exam}_응시현황.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    // PDF 다운로드 기능 (jsPDF 활용)
+    function saveAsPDF() {
+         if (reportData.length === 0) {
+            alert("출력할 데이터가 없습니다. 먼저 데이터를 추가해주세요.");
+            return;
+        }
+
+        const agency = document.getElementById('agency').value.trim() || '기관';
+        const exam = document.getElementById('exam').value.trim() || '시험';
+
+        captureReportElement(function(canvas) {
+            const imgData = canvas.toDataURL('image/png');
+            
+            // jsPDF 인스턴스 생성 (l: 가로(landscape), mm 단위, a4 포맷)
+            // window.jspdf 객체 참조
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('l', 'mm', 'a4');
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth(); // A4 가로 너비 (297mm)
+            const pdfHeight = pdf.internal.pageSize.getHeight(); // A4 가로 높이 (210mm)
+            
+            // 캔버스 이미지의 비율에 맞춰 PDF 내 이미지 높이 계산
+            const imgProps = pdf.getImageProperties(imgData);
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            // 이미지를 PDF에 추가
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+            
+            // PDF 파일 저장
+            pdf.save(`${agency}_${exam}_응시현황.pdf`);
+        });
+    }
+</script>
+
+</body>
+</html>
